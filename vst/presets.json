@@ -1,0 +1,137 @@
+{
+  "presets": [
+    {
+      "name": "Init",
+      "values": {
+        "mode": 2,
+        "intensity": 0.44,
+        "echo_volume": 1.0,
+        "reverb_volume": 0.35,
+        "mix": 0.5,
+        "tempo_sync": 0,
+        "echo_rate_note": 5,
+        "input_volume": 0.5,
+        "input_send": 1,
+        "ping_pong": 0,
+        "stereo_width": 0,
+        "time_ms": 400.0,
+        "tone_tilt": 0.0,
+        "tape_wear": 0.25
+      }
+    },
+    {
+      "name": "Dub Classic",
+      "values": {
+        "mode": 2,
+        "intensity": 0.72,
+        "echo_volume": 1.0,
+        "reverb_volume": 0.2,
+        "mix": 0.35,
+        "tempo_sync": 0,
+        "echo_rate_note": 5,
+        "input_volume": 0.5,
+        "input_send": 1,
+        "ping_pong": 0,
+        "stereo_width": 0,
+        "time_ms": 120,
+        "tone_tilt": -0.2,
+        "tape_wear": 0.35
+      }
+    },
+    {
+      "name": "King Tubby",
+      "values": {
+        "mode": 1,
+        "intensity": 0.8,
+        "echo_volume": 1.0,
+        "reverb_volume": 0.0,
+        "mix": 0.4,
+        "tempo_sync": 0,
+        "echo_rate_note": 5,
+        "input_volume": 0.5,
+        "input_send": 1,
+        "ping_pong": 0,
+        "stereo_width": 0,
+        "time_ms": 110,
+        "tone_tilt": -0.45,
+        "tape_wear": 0.5
+      }
+    },
+    {
+      "name": "Bristol Steppers",
+      "values": {
+        "mode": 3,
+        "intensity": 0.86,
+        "echo_volume": 1.0,
+        "reverb_volume": 0.1,
+        "mix": 0.42,
+        "tempo_sync": 0,
+        "echo_rate_note": 5,
+        "input_volume": 0.5,
+        "input_send": 1,
+        "ping_pong": 0,
+        "stereo_width": 0,
+        "time_ms": 100,
+        "tone_tilt": -0.35,
+        "tape_wear": 0.55
+      }
+    },
+    {
+      "name": "Slapback",
+      "values": {
+        "mode": 0,
+        "intensity": 0.18,
+        "echo_volume": 0.85,
+        "reverb_volume": 0.0,
+        "mix": 0.25,
+        "tempo_sync": 0,
+        "echo_rate_note": 5,
+        "input_volume": 0.5,
+        "input_send": 1,
+        "ping_pong": 0,
+        "stereo_width": 0,
+        "time_ms": 88,
+        "tone_tilt": 0.0,
+        "tape_wear": 0.25
+      }
+    },
+    {
+      "name": "Spring Dub",
+      "values": {
+        "mode": 6,
+        "intensity": 0.65,
+        "echo_volume": 0.8,
+        "reverb_volume": 0.85,
+        "mix": 0.45,
+        "tempo_sync": 0,
+        "echo_rate_note": 5,
+        "input_volume": 0.5,
+        "input_send": 1,
+        "ping_pong": 0,
+        "stereo_width": 0,
+        "time_ms": 115,
+        "tone_tilt": -0.15,
+        "tape_wear": 0.25
+      }
+    },
+    {
+      "name": "Ambient Wash",
+      "values": {
+        "mode": 10,
+        "intensity": 0.8,
+        "echo_volume": 0.9,
+        "reverb_volume": 0.75,
+        "mix": 0.6,
+        "tempo_sync": 0,
+        "echo_rate_note": 5,
+        "input_volume": 0.5,
+        "input_send": 1,
+        "ping_pong": 0,
+        "stereo_width": 0,
+        "time_ms": 130,
+        "tone_tilt": -0.1,
+        "tape_wear": 0.6
+      }
+    }
+  ]
+}

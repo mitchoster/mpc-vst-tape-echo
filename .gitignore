@@ -1,0 +1,11 @@
+# build output
+vst/build/
+vst/dist/
+*.so
+*.o
+*_test
+
+# editor and OS noise
+.DS_Store
+Thumbs.db
+*.swp

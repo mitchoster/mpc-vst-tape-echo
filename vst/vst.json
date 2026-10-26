@@ -1,0 +1,43 @@
+{
+  "name": "MPC Tape Echo",
+  "vendor": "MPCTE",
+  "uid": "TpEc",
+  "version": 1000,
+  "so": "mpc_tape_echo.so",
+  "module": "src/spaceecho_module.json",
+  "layout": "layout.conf",
+  "presets": "presets.json",
+  "art": "html",
+  "effect": true,
+  "defines": {
+    "HAS_LFO_BPM": 1,
+    "HAS_DISPLAY_REV": 1,
+    "DISPLAY_REV_NO_UPDATE": 1,
+    "VU_FULL": 0.05
+  },
+  "build": {
+    "root": ".",
+    "sources": [
+      "src/dsp/spaceecho_trim.cpp",
+      "src/ported/core/TapeEchoDSP.cpp"
+    ],
+    "cflags": [
+      "-std=gnu++17",
+      "-Isrc/ported/shared-dpf/dsp",
+      "-fno-gnu-unique",
+      "-O3",
+      "-ffast-math",
+      "-fno-finite-math-only",
+      "-fno-math-errno"
+    ],
+    "cflags_arm": [
+      "-mfpu=neon-vfpv4",
+      "-ftree-vectorize"
+    ],
+    "libs": [
+      "-lm",
+      "-lpthread"
+    ]
+  },
+  "skin_post": "skin_post.py"
+}
