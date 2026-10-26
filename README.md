@@ -4,7 +4,7 @@ A three-head tape echo with a spring tank for Akai MPC and Force standalone devi
 reverb modes, tape saturation, wow and flutter, tape age, tempo sync, and a VU meter that moves like
 the hardware's.
 
-![MPC Tape Echo on an MPC Live II](docs/device.png)
+![MPC Tape Echo panel](docs/img/panel.png)
 
 ## Why this exists
 
