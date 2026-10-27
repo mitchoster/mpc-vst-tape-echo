@@ -1,0 +1,37 @@
+/* MPC Tape Echo — charcoal/amber skin for the browser renderer (layout.conf `art_css=skin.css`).
+
+   The plates, the panel, the transport window, the VU scale and every card frame are baked by
+   vst/art/make_plate.py; the knobs are a filmstrip from vst/art/make_widgets.py and the VU bar one from
+   vst/art/make_vu.py. What is left for this stylesheet is the handful of controls the renderer DRAWS:
+   option tiles (enum_h) and the live read-out plate. Keep it to colour, shape and type — sizes and
+   positions belong to layout.conf, because MPC places its own live text on top. */
+
+:root {
+  --radius: 4px;
+  --sheen: 0.03;              /* flat tiles: the plate is matte, not glossy */
+  --shadow: none;
+  --label-size: 15px;
+  --seg-size: 10.5px;         /* option tile text: the VU-cal labels ("plus 150 %") are the long ones */
+  --button-size: 15px;
+}
+
+/* the artwork already draws the panel and card edges: no second frame on top */
+.frame-border, .frame-rule, .frame-title { display: none; }
+
+/* live read-outs sit on their own baked plate: no box, just the number */
+.box { fill: none; stroke: none; }
+.box-label { fill: var(--ink-faint); font-size: 10px; letter-spacing: 0.16em; }
+
+/* option tiles: matte charcoal keys at rest, amber when chosen (theme seg_* colours). The hairline
+   keeps the 12-way mode matrix reading as separate keys on the card's own fill. */
+.seg-bg { rx: 4px; ry: 4px; stroke: rgba(255, 255, 255, 0.055); stroke-width: 1; }
+.seg.on .seg-bg, .on .seg-bg { stroke: none; }
+.seg-sheen { display: none; }
+.seg-tx { font-weight: 600; letter-spacing: 0.03em; }
+.seg.on .seg-tx { font-weight: 700; }
+
+/* knobs are a filmstrip (baked arc + pointer), so these only matter for a look= knob */
+.knob-face { fill: var(--knob-face); }
+.knob-track { stroke: var(--knob-ring); }
+.knob-arc { stroke: var(--accent); }
+.knob-sheen { display: none; }

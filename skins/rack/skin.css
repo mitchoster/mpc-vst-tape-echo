@@ -1,0 +1,83 @@
+/* MPC Tape Echo - Rack skin overrides for the browser renderer (layout.conf `art_css=skin.css`).
+ *
+ * Same language as the MPC DJ FX 2 port (2026-10-27, owner: MagicStino's PulyTek - a hardware faceplate
+ * with engraved labels, one real meter, tiles with a milled bezel, dense but calm), warmed up for a tape
+ * machine: graphite chassis, amber LEDs, oxide rust as the only hot colour.
+ *
+ * The per-page artwork carries the texture, the masthead, the bay hairlines and the engravings
+ * (vst/art/make_te_skin.py); MPC draws every control name and value live on top (vst/skin_post.py picks
+ * Titillium Web SemiBold/Bold and upper case). Colours come from the layout's theme_* lines; everything
+ * here is shape, weight and engraving. */
+
+:root {
+  --radius: 6px;
+  --sheen: 0.07;
+  --shadow: none;
+  --label-size: 11px;      /* baked group captions */
+  --seg-size: 15px;        /* option tile text */
+  --font: "Titillium Web", "DejaVu Sans", sans-serif;
+  --title-font: "Titillium Web", sans-serif;
+}
+
+/* ---------------------------------------------------------------- bays (frame widgets)
+ * An engraved box: hairline, a slightly sunk interior, and its title sitting on the rule under the
+ * top edge. */
+.frame-border {
+  fill: rgba(0, 0, 0, 0.24);
+  stroke: #3b3730;
+  stroke-width: 1;
+  rx: 6px;
+  ry: 6px;
+}
+.frame-rule { stroke: #3f3b34; stroke-width: 1; }
+.frame-title {
+  font-family: var(--title-font);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2.6px;
+  fill: #d3c9b4;
+  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.75));
+}
+
+/* ---------------------------------------------------------------- free text (captions) */
+.text {
+  font-family: var(--font);
+  font-size: var(--label-size);
+  fill: var(--ink-dim);
+}
+
+/* ---------------------------------------------------------------- knobs
+ * look=hardware everywhere: a black anodised dome on a ribbed skirt, an ivory pointer, and a ring of
+ * engraved tick marks outside it that do not turn. Ticks and pointer carry the contrast, not the body. */
+.knob-sheen { opacity: 0; }
+.look-hticks line { stroke: #7d766a; stroke-width: 1.2; opacity: 0.55; }
+.look-hshadow { fill: rgba(0, 0, 0, 0.55); }
+.look-hskirt { fill: #0c0b0a; }
+.look-hrib { stroke: #2e2b26; }
+.look-hrim { fill: #4c483f; }
+.look-hdome { fill: url(#dome-radial); }
+.look-hpointer { fill: #f6eed8; stroke: #17140f; stroke-width: 0.5; }
+.look-hspec { fill: #fff; opacity: 0.42; }
+.look-hglint { fill: #fff; opacity: 0.10; }
+.knob.look-hardware { filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.45)); }
+
+/* ---------------------------------------------------------------- option tiles (MODES, TAPE STOCK)
+ * Image tiles (art/seg_mode_*.png, art/seg_age_*.png): a machined push-button that inverts to a cream
+ * plate when chosen, like a Pultec-era switch. The option name is live type on top. */
+.seg.look-image .seg-tx {
+  font-family: var(--font);
+  font-size: var(--seg-size);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  fill: #cfc6b2;
+}
+.seg.look-image.on .seg-tx { fill: #17150f; }
+.seg.look-image .seg-bg, .seg.look-image .seg-sheen { display: none; }
+
+/* ---------------------------------------------------------------- bat switches (image toggles)
+ * Drawn into art/switch_*.png; the amber lamp is part of the image, so nothing to restyle here. */
+.toggle.look-image { filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5)); }
+
+/* ---------------------------------------------------------------- no boxed readouts on this panel */
+.box { fill: none; stroke: none; }
+.box-label { fill: var(--ink-dim); letter-spacing: 2px; }

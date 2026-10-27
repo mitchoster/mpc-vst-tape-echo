@@ -27,9 +27,7 @@ import os
 import re
 
 HERE = os.path.dirname(os.path.abspath(__file__))          # .../vst
-MV = os.environ.get("MPC_VST_PLUGINS")
-if not MV:
-    raise SystemExit("set MPC_VST_PLUGINS to a checkout of sd88me/mpc-vst-plugins")
+MV = os.environ.get("MPC_VST_PLUGINS") or os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "mpc-vst-plugins")
 
 # ---- the DSP's repeat-rate <-> head-1 delay-ms law (TapeEchoDSP.cpp / .hpp) -------------
 KMIN, KMAX = 69.33, 177.354

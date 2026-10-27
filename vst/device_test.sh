@@ -5,7 +5,7 @@
 # Prereq (one-time, on the device, root):
 #   install the addin, then add it to HAKAI's LD_PRELOAD (this port's wrapper drop-in).
 # And on this machine, keep the tunnel open:
-#   ssh -N -L 6720:127.0.0.1:6720 root@<mpc-ip>
+#   ssh -N -L 6720:127.0.0.1:6720 root@<mpc ip>
 #
 #   vst/device_test.sh status                 # device_status (OS, CPU, memory, ...)
 #   vst/device_test.sh info                    # screen + touch info

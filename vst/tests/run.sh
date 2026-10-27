@@ -10,6 +10,12 @@ HERE="$(cd "$(dirname "$0")" && pwd)"          # .../vst/tests
 VST="$(cd "$HERE/.." && pwd)"                  # .../vst
 PROJECT="$(cd "$VST/.." && pwd)"
 
+# Translate a path under the workspace to the prefix the Docker daemon sees: set MPC_VST_WORKSPACE to the
+# directory holding this port and the framework, MPC_VST_HOST_ROOT to how the daemon sees it (both empty
+# when docker runs on this machine).
+WORKSPACE="${MPC_VST_WORKSPACE:-$(cd "$MV/.." 2>/dev/null && pwd)}"
+HOST_ROOT="${MPC_VST_HOST_ROOT:-}"
+host() { case "$1" in "$WORKSPACE"/*) printf '%s%s' "$HOST_ROOT" "${1#"$WORKSPACE"}" ;; *) printf '%s' "$1" ;; esac; }
 
 BUILD="$PROJECT/vst/build/tests"
 mkdir -p "$BUILD"
@@ -27,7 +33,7 @@ if [ -f "$BUILD/dusk/plugins/tape-echo/core/TapeEchoDSP.cpp" ]; then
   cp "$VST/src/ported/dpf-plugin/TapeEchoParams.hpp" "$BUILD/pristine/daf-plugin/"
 fi
 
-docker run --rm -v "$PROJECT":/p:ro -w /p/vst gcc:12 bash -euc '
+docker run --rm -v "$(host "$PROJECT")":/p:ro -w /p/vst gcc:12 bash -euc '
   echo "=== 1. upstream test_dsp ==="
   g++ -O2 -std=c++17 -Wall tests/test_dsp.cpp src/ported/core/TapeEchoDSP.cpp \
       -Isrc -Isrc/ported/core -Isrc/ported/shared-dpf/dsp -o /tmp/test_dsp -lm -lpthread
