@@ -2,7 +2,7 @@
   "name": "MPC Tape Echo",
   "vendor": "LarryDaimond",
   "uid": "TpEc",
-  "version": 1000,
+  "version": 1210,
   "so": "mpc_tape_echo.so",
   "module": "src/spaceecho_module.json",
   "layout": "layout.conf",
@@ -13,7 +13,8 @@
     "HAS_LFO_BPM": 1,
     "HAS_DISPLAY_REV": 1,
     "DISPLAY_REV_NO_UPDATE": 1,
-    "VU_FULL": 0.05
+    "VU_FULL": 0.05,
+    "MODULE_SUBDIR": "\".\""
   },
   "build": {
     "root": ".",
