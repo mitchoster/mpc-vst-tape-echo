@@ -230,7 +230,7 @@ def masthead(img, title, sub, page, pages):
         if on:
             d.rectangle([x, 43, x + wlab - 2, 45], fill=AMBER + (230,))
         x -= 26
-    tracked(d, (1252, 58), "MPCTE  \u00b7  TAPE ECHO", font("semi", 8), (124, 118, 108, 210),
+    tracked(d, (1252, 58), "LarryDaimond  \u00b7  TAPE ECHO", font("semi", 8), (124, 118, 108, 210),
             tracking=2.6, anchor="right")
     img = over(img, lay)
     img = rule(img, 28, 88, W - 28, col=RULE, a=120)
@@ -241,7 +241,7 @@ def footer(img, page, pages):
     lay = layer()
     d = ImageDraw.Draw(lay)
     f = font("semi", 8)
-    tracked(d, (32, 614), "MPCTE  \u00b7  MPC TAPE ECHO", f, (112, 106, 96, 190), tracking=2.4)
+    tracked(d, (32, 614), "LarryDaimond  \u00b7  MPC TAPE ECHO", f, (112, 106, 96, 190), tracking=2.4)
     tracked(d, (W - 32, 614), "PAGE %d / %d" % (page + 1, len(pages)), f, (112, 106, 96, 190),
             tracking=2.4, anchor="right")
     img = over(img, lay)

@@ -18,7 +18,7 @@ HERE="$(cd "$(dirname "$0")" && pwd)"     # .../vst
 MV="${MPC_VST_PLUGINS:-$(cd "$(dirname "$0")/../../mpc-vst-plugins" 2>/dev/null && pwd || echo "")}"
 [ -n "$MV" ] || { echo "set MPC_VST_PLUGINS to the mpc-vst-plugins checkout" >&2; exit 2; }
 DEVICE="${DEVICE:?set DEVICE to the MPC IP address}"
-FOLDER="MPCTE - VST - MPC Tape Echo"
+FOLDER="LarryDaimond - VST - MPC Tape Echo"
 SO="mpc_tape_echo.so"
 
 # Translate a path under the workspace to the prefix the Docker daemon sees: set MPC_VST_WORKSPACE to the

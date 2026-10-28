@@ -1,6 +1,6 @@
 {
   "name": "MPC Tape Echo",
-  "vendor": "MPCTE",
+  "vendor": "LarryDaimond",
   "uid": "TpEc",
   "version": 1000,
   "so": "mpc_tape_echo.so",

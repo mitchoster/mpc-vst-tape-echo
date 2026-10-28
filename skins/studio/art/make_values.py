@@ -27,7 +27,7 @@ import look as L  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 PORT = os.path.join(HERE, "..", "..")
-SKIN = os.path.join(PORT, "vst", "build", "skin", "MPCTE - VST - MPC Tape Echo", "Plugin Skins")
+SKIN = os.path.join(PORT, "vst", "build", "skin", "LarryDaimond - VST - MPC Tape Echo", "Plugin Skins")
 
 # parameter -> (value on the parameter's own scale, the text MPC would print)
 SAMPLES = {
