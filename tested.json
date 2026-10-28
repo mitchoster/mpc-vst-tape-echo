@@ -4,5 +4,11 @@
     "device": "MPC Live II",
     "firmware": "3.9.1.2",
     "date": "2026-10-26"
+  },
+  {
+    "version": "1.2.0",
+    "device": "MPC Live II",
+    "firmware": "MPC OS 3.x (ACVS-MPC3 build)",
+    "date": "2026-10-28"
   }
 ]
