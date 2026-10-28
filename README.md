@@ -12,11 +12,29 @@ spring reverb, tape saturation, wow & flutter, 12 head/reverb modes).
 - Spec: [`MPC_Space_Echo_Agent_Spec.md`](./MPC_Space_Echo_Agent_Spec.md)
 - Plan / tasks: [`tasks/plan.md`](./tasks/plan.md), [`tasks/todo.md`](./tasks/todo.md)
 
-**Status: Phase 2 in progress (2026-10-11).** Engine vendored at v1.4.5, the framework `adapters/schwung_fx` builds
-an armhf `.so`, the 19-param contract is frozen (+ a display-only `vu` param for the live VU), offline suites are
-green, and the skin (3 tabs, 12-mode selector, RE-202-inspired faceplate, live VU) is previewed in
-`docs/ui-preview/`. **Deployed** to an MPC Live II (MPC OS 3.9.1.2), registered as an Effect, md5 verified; bench
-**WARN** (p99 24.9 %, ~4× headroom) — device test pending. See `PORTING_NOTES.md`.
+**Status (2026-10-28):** 1.2.0 ships three interfaces in one plugin, switchable from inside it. The engine is
+vendored at v1.4.5 through the `adapters/schwung_fx` adapter, 22 parameters (21 engine controls plus the
+interface selector), offline suites green, bench **WARN** (p99 ~22 %, same as 1.1.0). See `PORTING_NOTES.md`.
+
+## Three interfaces, one plugin
+
+Studio, Classic and Rack ship inside the plugin folder — no separate download, no reinstall:
+
+| Interface | Look | Pages |
+| --- | --- | --- |
+| **Studio** (default) | display panel on top, parameter cards below (reference: 3dthc's Shapey) | TAPE · SYNC OUT |
+| **Classic** | RE-202-inspired ivory faceplate | MAIN · TAPE · OUT |
+| **Rack** | anodised graphite bays (reference: MagicStino's PulyTek) | PROGRAM · TAPE · TONE |
+
+**INTERFACE** is on the TAPE page's ECHO/VERB card (Studio), the OUT page (Classic) and the SYNC/DIV bay
+(Rack). MPC binds a skin when an instance is inserted and has no reload call, so the switch lands on the
+next insert: pick, then remove the plugin instance and insert it again.
+
+The three interfaces live under `Plugin Skins/{studio,classic,rack}/` and differ only in the files MPC reads
+on insert (`TUI.json` and the Q-Link banks). Switching copies those two small JSON files — via a `.tmp` name
+and a rename — and rewrites no image, so the instance that is playing is untouched. `Plugin Skins/ui.txt`
+records the choice; a project or preset carrying an older value is corrected from disk on load, so a preset
+can never flip the interface. `tools/make_skinset.py` builds that folder from three skin builds.
 
 ## Build & test levers
 
