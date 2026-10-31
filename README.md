@@ -16,6 +16,16 @@ spring reverb, tape saturation, wow & flutter, 12 head/reverb modes).
 vendored at v1.4.5 through the `adapters/schwung_fx` adapter, 22 parameters (21 engine controls plus the
 interface selector), offline suites green, bench **WARN** (p99 ~22 %, same as 1.1.0). See `PORTING_NOTES.md`.
 
+![MPC Tape Echo, the Studio interface](docs/img/panel.png)
+
+| TAPE | TAPE / INPUT | OUTPUT |
+| --- | --- | --- |
+| ![tape page](docs/page_0.png) | ![tape input page](docs/page_1.png) | ![output page](docs/page_2.png) |
+
+On the device:
+
+![MPC Tape Echo on an MPC Live II](docs/device.png)
+
 ## Three interfaces, one plugin
 
 Studio, Classic and Rack ship inside the plugin folder — no separate download, no reinstall:
