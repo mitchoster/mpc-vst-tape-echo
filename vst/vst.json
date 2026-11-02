@@ -19,6 +19,7 @@
   "build": {
     "root": ".",
     "sources": [
+      "src/dsp/companion.cpp",
       "src/dsp/spaceecho_trim.cpp",
       "src/ported/core/TapeEchoDSP.cpp"
     ],

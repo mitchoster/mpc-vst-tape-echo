@@ -27,6 +27,7 @@
 #include "../host/plugin_api_v1.h"
 #include "../host/audio_fx_api_v2.h"
 #include "../ported/core/TapeEchoDSP.hpp"   /* pulls in TapeEchoParams.hpp */
+#include "companion.h"
 #include "te2_params.h"
 
 static const host_api_v1_t *g_host = nullptr;
@@ -46,6 +47,9 @@ struct te2_instance {
 
     float bufL[MOVE_FRAMES_PER_BLOCK];
     float bufR[MOVE_FRAMES_PER_BLOCK];
+
+    int slot;                       /* companion page slot (-1 = server off), see companion.h */
+    unsigned blocks;                /* blocks since the last publish, so /state is not fed 344x/s */
 
     /* serve buffers (control thread only) */
     char chain_buf[8192];
@@ -383,13 +387,21 @@ static void *te2_create_instance(const char * /*module_dir*/,
     for (int i = 0; i < TE2_PARAM_COUNT; i++)
         te2_set_index(inst, i, te2_params[i].def);
 
+    inst->slot = tec::attach();   /* companion page; -1 when TEC_HTTP=0 or no slot free */
+    inst->blocks = 0;
+
     te2_log("tape-echo2: instance created");
     return inst;
 }
 
 static void te2_destroy_instance(void *instance)
 {
-    delete (te2_instance *)instance;
+    auto *inst = (te2_instance *)instance;
+    /* Before the memory goes: the page must never read a freed instance, and the last detach
+     * stops AND joins the listener thread (a thread parked in poll() after dlclose() takes
+     * the device down — see companion.cpp). */
+    tec::detach(inst->slot);
+    delete inst;
 }
 
 /* The head-1 motor time actually in effect, in ms.
@@ -424,10 +436,84 @@ static double te2_motor_base_ms(te2_instance *inst)
     return requestedHead1Ms;
 }
 
+/* The host-path setter, declared before process_block because that is where the companion
+ * page's commands are applied (set_param owns the macro fan-out; set_index does not). */
+static void te2_set_param(void *instance, const char *key, const char *val);
+
+/* Which heads read the tape in a mode: parsed from the published option name ("H2+3",
+ * "H123R", "Rev"), so the drawing and the mode table cannot drift apart. */
+static void te2_mode_bits(int mode_idx, int *heads, int *rev)
+{
+    *heads = 0;
+    *rev = 0;
+    if (mode_idx < 0) mode_idx = 0;
+    if (mode_idx > 11) mode_idx = 11;
+    for (const char *p = te2_opts_mode[mode_idx]; *p; p++) {
+        if (*p >= '1' && *p <= '3') *heads |= 1 << (*p - '1');
+        else if (*p == 'R' || *p == 'r') *rev = 1;
+    }
+}
+
+/* Called from process_block every 16th block (~46 ms at 128 frames), never more often:
+ * /state is polled at 7 Hz, so a faster feed would only cost the audio thread stores. */
+static void te2_publish(te2_instance *inst)
+{
+    tec::Snapshot s;
+    const int mode = (int)(inst->values[TE2_P_MODE].load(std::memory_order_relaxed) + 0.5f);
+    const double base = te2_motor_base_ms(inst);
+    int lead = teLeadingHeadIndexForMode(mode + 1);
+    if (lead < 0) lead = 0;
+    if (lead > 2) lead = 2;
+
+    for (int h = 0; h < 3; h++)
+        s.head_ms[h] = (float)(base * (double)duskaudio::TapeEchoDSP::kHeadRatio[h] +
+                               (double)duskaudio::TapeEchoDSP::kHeadOffsetMs[h]);
+    s.delay_ms = s.head_ms[lead];
+    s.vu = inst->dsp.getRecordVuLevel();
+    s.peak = inst->dsp.getRecordPeakLevel();
+    s.bpm = (g_host && g_host->get_bpm) ? (float)g_host->get_bpm() : 0.0f;
+    s.repeat_rate = inst->values[TE2_P_RATE].load(std::memory_order_relaxed);
+    s.intensity = inst->values[TE2_P_INTENSITY].load(std::memory_order_relaxed);
+    s.echo_volume = inst->values[TE2_P_ECHO_VOL].load(std::memory_order_relaxed);
+    s.reverb_volume = inst->values[TE2_P_REVERB_VOL].load(std::memory_order_relaxed);
+    s.mix = inst->values[TE2_P_MIX].load(std::memory_order_relaxed);
+    s.input_volume = inst->values[TE2_P_INPUT].load(std::memory_order_relaxed);
+    s.bass = inst->values[TE2_P_BASS].load(std::memory_order_relaxed);
+    s.treble = inst->values[TE2_P_TREBLE].load(std::memory_order_relaxed);
+    s.wow_flutter = inst->values[TE2_P_WOW].load(std::memory_order_relaxed);
+    s.time_ms = inst->values[TE2_P_TIME_MS].load(std::memory_order_relaxed);
+    s.tone_tilt = inst->values[TE2_P_TONE_TILT].load(std::memory_order_relaxed);
+    s.tape_wear = inst->values[TE2_P_TAPE_WEAR].load(std::memory_order_relaxed);
+    s.mode = mode;
+    s.tempo_sync = inst->values[TE2_P_SYNC].load(std::memory_order_relaxed) > 0.5f ? 1 : 0;
+    s.echo_rate_note = (int)(inst->values[TE2_P_NOTE].load(std::memory_order_relaxed) + 0.5f);
+    s.tape_age = (int)(inst->values[TE2_P_AGE].load(std::memory_order_relaxed) + 0.5f);
+    s.input_send = inst->values[TE2_P_SEND].load(std::memory_order_relaxed) > 0.5f ? 1 : 0;
+    s.ping_pong = inst->values[TE2_P_PINGPONG].load(std::memory_order_relaxed) > 0.5f ? 1 : 0;
+    s.stereo_width = (int)(inst->values[TE2_P_WIDTH].load(std::memory_order_relaxed) + 0.5f);
+    te2_mode_bits(mode, &s.heads, &s.rev_head);
+    tec::publish(inst->slot, s);
+}
+
 static void te2_process_block(void *instance, int16_t *audio_inout, int frames)
 {
     auto *inst = (te2_instance *)instance;
     if (!inst || !audio_inout || frames <= 0) return;
+
+    /* Companion page: whatever arrived since the last block. The page only queues; the
+     * parameter change happens here because the DSP state belongs to the render loop. Going
+     * through te2_set_param is deliberate — that is the path the host uses, so a macro fans
+     * out exactly as it does when the on-device knob moves. */
+    {
+        tec::Command cmds[8];
+        const int ncmd = tec::take_commands(inst->slot, cmds, 8);
+        for (int i = 0; i < ncmd; i++) {
+            if (cmds[i].idx < 0 || cmds[i].idx >= TE2_PARAM_COUNT) continue;
+            char vs[24];
+            snprintf(vs, sizeof vs, "%.6g", (double)cmds[i].val);
+            te2_set_param(inst, te2_params[cmds[i].idx].key, vs);
+        }
+    }
 
     /* Motor speed, once per block: tempo sync wins, otherwise the knob. */
     if (inst->values[TE2_P_SYNC].load(std::memory_order_relaxed) > 0.5f) {
@@ -462,6 +548,11 @@ static void te2_process_block(void *instance, int16_t *audio_inout, int frames)
 
         p += n * 2;
         frames -= n;
+    }
+
+    if (++inst->blocks >= 16) {
+        inst->blocks = 0;
+        te2_publish(inst);
     }
 }
 
@@ -986,6 +1077,12 @@ static audio_fx_api_v2_t g_fx_api_v2;
 extern "C" audio_fx_api_v2_t *move_audio_fx_init_v2(const host_api_v1_t *host)
 {
     g_host = host;
+
+    /* The companion server validates writes against the port's own key table, so it can refuse
+     * an unknown key with 400 instead of guessing what the page meant. */
+    static const char *keys[TE2_PARAM_COUNT];
+    for (int i = 0; i < TE2_PARAM_COUNT; i++) keys[i] = te2_params[i].key;
+    tec::register_param_keys(keys, TE2_PARAM_COUNT);
 
     memset(&g_fx_api_v2, 0, sizeof g_fx_api_v2);
     g_fx_api_v2.api_version      = AUDIO_FX_API_VERSION_2;

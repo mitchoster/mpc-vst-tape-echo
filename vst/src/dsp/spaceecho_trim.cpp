@@ -35,7 +35,7 @@
 static const char *const kSkinDirs[] = { "studio", "classic", "rack" };
 static const char *const kSkinTxt[]  = { "Studio", "Classic", "Rack" };
 #define SKIN_N ((int)(sizeof kSkinDirs / sizeof kSkinDirs[0]))
-#define SKIN_DEFAULT_IDX 0
+#define SKIN_DEFAULT_IDX 2   /* 0 studio, 1 classic, 2 rack: the rack panel is the default */
 
 static int skin_clamp_idx(int idx)
 {
@@ -116,7 +116,7 @@ static int json_number(const char *json, const char *key, float *out)
 
 static void skin_apply(trim_t *t, int idx)
 {
-    if (!t->dir || idx < 0 || idx >= SKIN_N) return;
+    if (!t->dir || !t->dir[0] || idx < 0 || idx >= SKIN_N) return;
     static const char *const files[] = { "TUI.json", "Q-Links.json", "Q-Links - 8by1.json" };
     char src[900], dst[800], tmp[900];
     int done = 0;
@@ -140,7 +140,7 @@ static void skin_apply(trim_t *t, int idx)
 static void skin_sync(trim_t *t)
 {
     t->ui = SKIN_DEFAULT_IDX;
-    if (!t->dir) return;
+    if (!t->dir || !t->dir[0]) return;
     char p[900], line[32] = { 0 };
     snprintf(p, sizeof p, "%s/Plugin Skins/ui.txt", t->dir);
     FILE *f = fopen(p, "rb");
@@ -160,7 +160,7 @@ static void *trim_create(const char *dir, const char *cfg)
     if (!t) { inner->destroy_instance(inst); return NULL; }
     t->inst = inst;
     t->cal = CAL_DEFAULT_IDX;
-    t->dir = dir ? strdup(dir) : nullptr;
+    t->dir = (dir && dir[0]) ? strdup(dir) : nullptr;   /* "" = the host did not say where we are */
     skin_sync(t);
     return t;
 }
