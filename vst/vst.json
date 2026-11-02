@@ -2,7 +2,7 @@
   "name": "MPC Tape Echo",
   "vendor": "LarryDaimond",
   "uid": "TpEc",
-  "version": 1210,
+  "version": 1220,
   "so": "mpc_tape_echo.so",
   "module": "src/spaceecho_module.json",
   "layout": "layout.conf",
@@ -20,6 +20,7 @@
     "root": ".",
     "sources": [
       "src/dsp/companion.cpp",
+      "src/dsp/qrcodegen.c",
       "src/dsp/spaceecho_trim.cpp",
       "src/ported/core/TapeEchoDSP.cpp"
     ],

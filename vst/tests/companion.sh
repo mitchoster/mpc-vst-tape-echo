@@ -25,7 +25,7 @@ docker run --rm -e "TEC_HTTP_PORT=$PORT" -e "TEC_OFF_PORT=$OFF_PORT" \
   -v "$(host "$WS")":/w -w "/w${HERE#"$WS"}" gcc:12 bash -lc '
 set -e
 c++ -std=gnu++17 -O2 -Wall -Wextra -I. -Isrc -Isrc/ported/shared-dpf/dsp -o /tmp/tec_test \
-  tests/companion_test.cpp src/dsp/spaceecho_trim.cpp src/dsp/companion.cpp \
+  tests/companion_test.cpp src/dsp/spaceecho_trim.cpp src/dsp/companion.cpp src/dsp/qrcodegen.c \
   src/ported/core/TapeEchoDSP.cpp \
   -lm -lpthread 2>&1 | grep -E "error|Error" && exit 1 || true
 /tmp/tec_test

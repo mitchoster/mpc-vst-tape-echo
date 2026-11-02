@@ -79,7 +79,8 @@ var pairText = '';   /* what the bar shows a second phone: the plugin's own addr
 function setPair() {
   var u = (st && typeof st.url === 'string' && st.url) ? st.url : location.host;
   pairText = u;
-  if (pairEl) pairEl.textContent = 'PAIR ' + u;
+  if (pairEl) { pairEl.textContent = 'PAIR ' + u; pairEl.style.pointerEvents = 'auto'; pairEl.style.cursor = 'pointer';
+    pairEl.onclick = function () { var q = document.getElementById('qr'); if (q) q.style.display = (q.style.display === 'none' ? 'block' : 'none'); }; }
 }
 
 /* control state */
@@ -1000,5 +1001,6 @@ window.__tecPanel = {
 };
 })();
 </script>
+<img id="qr" src="/qr.svg" alt="" style="display:none;position:fixed;right:14px;bottom:64px;width:140px;height:140px;border:7px solid #e9e4d2;border-radius:8px;background:#e9e4d2">
 </body>
 </html>

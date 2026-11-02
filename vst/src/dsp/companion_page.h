@@ -86,7 +86,8 @@ var pairText = '';   /* what the bar shows a second phone: the plugin's own addr
 function setPair() {
   var u = (st && typeof st.url === 'string' && st.url) ? st.url : location.host;
   pairText = u;
-  if (pairEl) pairEl.textContent = 'PAIR ' + u;
+  if (pairEl) { pairEl.textContent = 'PAIR ' + u; pairEl.style.pointerEvents = 'auto'; pairEl.style.cursor = 'pointer';
+    pairEl.onclick = function () { var q = document.getElementById('qr'); if (q) q.style.display = (q.style.display === 'none' ? 'block' : 'none'); }; }
 }
 
 /* control state */
@@ -250,10 +251,15 @@ function lamp(x, y, r, on, colour, name, key, toggle) {
 }
 
 /* a segmented switch: label above, one cell per option, the live one lit. A tap sends its index. */
-function seg(x, y, w, h, label2, opts, cur, key, base) {
+function seg(x, y, w, h, label2, opts, cur, key, base, pitch) {
   var b = base || 0;
   label(label2, x, y - h * 0.18, h * 0.34, DIM, 'left', h * 0.05);
   var n = opts.length, cw = w / n;
+  /* The drawn cell is often only ~18 px tall on a phone, and a hit box equal to it cannot be
+   * tapped: the finger lands outside and the touch becomes a page swipe. The target is grown
+   * vertically (never past the next row) while the drawing keeps its size. */
+  var th = Math.min(Math.max(h, 34), Math.max(h, (pitch || h + 8) - 4));
+  var ty = y + (h - th) / 2;
   for (var i = 0; i < n; i++) {
     var on = Math.round(cur) === (i + b);
     rr(x + i * cw + 1.5, y, cw - 3, h, Math.min(5, h * 0.22));
@@ -262,7 +268,7 @@ function seg(x, y, w, h, label2, opts, cur, key, base) {
     ctx.strokeStyle = on ? GREEN_HI : 'rgba(201,162,39,.28)'; ctx.stroke();
     text(opts[i], x + i * cw + cw / 2, y + h / 2, Math.min(h * 0.42, cw * 0.3),
          on ? CREAM : FAINT, 'center');
-    hits.push({ t: 'seg', key: key, i: i + b, name: opts[i], x: x + i * cw + 1, y: y, w: cw - 2, h: h });
+    hits.push({ t: 'seg', key: key, i: i + b, name: opts[i], x: x + i * cw + 1, y: ty, w: cw - 2, h: th });
   }
 }
 
@@ -615,11 +621,13 @@ function echoBody(dt, L, now) {
   label('LEVEL', envX0, envY - envH * 0.25, envH * 0.32, FAINT, 'left', 1);
 
   /* the mode grid: twelve cells, tap one */
-  var gx = bay.x + bay.w * 0.04, gy = envY + envH * 1.5;
-  var gw = bay.w * 0.92, cw4 = gw / 4;
-  var ch4 = Math.min(bay.h * 0.085, (bay.y + bay.h * 0.97 - gy) / 3);
+  var gx = bay.x + bay.w * 0.04, gy = envY + envH * 1.5, gw = bay.w * 0.92;
+  /* 4x3 makes 21 px rows on a phone; 3x4 makes usable ones without moving the grid. */
+  var cols4 = L.portrait ? 6 : 4;
+  var cw4 = gw / cols4;
+  var ch4 = Math.min(bay.h * (L.portrait ? 0.16 : 0.085), (bay.y + bay.h * 0.97 - gy) / (12 / cols4));
   for (var m = 0; m < 12; m++) {
-    var mx = gx + (m % 4) * cw4, my = gy + Math.floor(m / 4) * ch4;
+    var mx = gx + (m % cols4) * cw4, my = gy + Math.floor(m / cols4) * ch4;
     var on = st.mode === m;
     rr(mx + 1, my + 1, cw4 - 3, ch4 - 3, Math.min(4, ch4 * 0.2));
     ctx.fillStyle = on ? 'rgba(31,143,74,.55)' : 'rgba(10,14,10,.7)'; ctx.fill();
@@ -653,17 +661,19 @@ function tapeBody(dt, L, now) {
   var bay = L.bay;
   /* The tape art owns the top of the bay; the switches get their own band below it, so the
    * rows never land on the heads (they did: H1/H2/H3 showed up between the switches). */
-  var art = { x: bay.x, y: bay.y, w: bay.w, h: bay.h * 0.44 };
-  drawBay(art, dt, now, false);
+  var wide = !L.portrait;
+  if (wide) drawBay({ x: bay.x, y: bay.y, w: bay.w, h: bay.h * 0.40 }, dt, now, false);
 
   var px = bay.x + bay.w * 0.06, pw = bay.w * 0.88;
-  var band = bay.h * 0.50;                      /* 4 rows must fit in here */
-  var sh = Math.min(band / 7.0, pw * 0.06), gap = sh * 1.55;
-  var py = bay.y + bay.h * 0.46;
-  seg(px, py, pw, sh, 'TAPE AGE', ['NEW', 'USED', 'OLD'], st.tape_age, 'tape_age');
-  seg(px, py + gap, pw, sh, 'ARM (SEND)', ['OFF', 'ON'], st.input_send, 'input_send');
-  seg(px, py + gap * 2, pw, sh, 'PING PONG', ['OFF', 'ON'], st.ping_pong, 'ping_pong');
-  seg(px, py + gap * 3, pw, sh, 'SYNC', ['OFF', 'ON'], st.tempo_sync, 'tempo_sync');
+  /* Portrait: the switches own the bay. Four rows squeezed under the artwork were ~18 px
+   * tall - visually fine, impossible to hit. */
+  var band = bay.h * (wide ? 0.54 : 0.86);
+  var sh = Math.min(band / 5.2, wide ? 30 : 40), gap = sh * 1.35;
+  var py = bay.y + bay.h * (wide ? 0.42 : 0.07);
+  seg(px, py, pw, sh, 'TAPE AGE', ['NEW', 'USED', 'OLD'], st.tape_age, 'tape_age', 0, gap);
+  seg(px, py + gap, pw, sh, 'ARM (SEND)', ['OFF', 'ON'], st.input_send, 'input_send', 0, gap);
+  seg(px, py + gap * 2, pw, sh, 'PING PONG', ['OFF', 'ON'], st.ping_pong, 'ping_pong', 0, gap);
+  seg(px, py + gap * 3, pw, sh, 'SYNC', ['OFF', 'ON'], st.tempo_sync, 'tempo_sync', 0, gap);
 
   knobRow(L, [
     ['DRIVE', st.input_volume, fmt(st.input_volume), 'input_volume', null],
@@ -998,6 +1008,7 @@ window.__tecPanel = {
 };
 })();
 </script>
+<img id="qr" src="/qr.svg" alt="" style="display:none;position:fixed;right:14px;bottom:64px;width:140px;height:140px;border:7px solid #e9e4d2;border-radius:8px;background:#e9e4d2">
 </body>
 </html>
 )HTML";
