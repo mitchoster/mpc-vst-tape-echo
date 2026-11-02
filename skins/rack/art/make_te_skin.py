@@ -614,6 +614,7 @@ def main():
 
     tile_pair("mode", 148, 62)
     tile_pair("age", 200, 48)
+    tile_pair("flip", 124, 50)
     bat_switch()
 
 
