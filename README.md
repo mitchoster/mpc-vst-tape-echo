@@ -46,6 +46,34 @@ and a rename — and rewrites no image, so the instance that is playing is untou
 records the choice; a project or preset carrying an older value is corrected from disk on load, so a preset
 can never flip the interface. `tools/make_skinset.py` builds that folder from three skin builds.
 
+## Companion screen (phone / tablet)
+
+MPC draws a plugin's screen itself, from pre-rendered PNGs and polled values, and every moving
+widget costs it a redraw. The dense half of this port therefore lives in a browser: the plugin
+serves its own panel on the LAN, reads the same parameters the device shows and writes them back.
+
+![Companion panel — ECHO page](docs/companion/panel-echo.jpg)
+
+![Companion panel — TAPE page](docs/companion/panel-tape.jpg)
+
+- **Open it:** `http://<device-ip>:8101/` — the panel prints that address itself in its `PAIR`
+  line, and `/state` publishes it as `url`, so nothing has to be guessed. Add it to the home
+  screen; the plugin serves its own manifest and icon.
+- **It writes, not just watches.** Knobs, switches and the 12-mode grid post to
+  `POST /set?k=<param>&v=<value>`; the plugin queues the change and applies it on the audio
+  thread, so macros fan out exactly as they do from the device.
+- **Three faces:** ECHO (tape bay with the three heads, mode grid), TAPE (age, arm, ping-pong,
+  sync, character), MACRO (time, tone, tape wear).
+- **Two plugins at once:** each plugin owns its own port (`8101` here, `8102`
+  for MPC DJ FX 2), so two browser tabs drive two plugins.
+- **Switches:** `TEC_HTTP=0` disables the listener entirely, `TEC_HTTP_RW=0` keeps it
+  read-only. Writes require an `X-TEC: 1` header, which a cross-site form cannot send,
+  so a page on another origin cannot move your effect.
+
+The approach — one canvas, motion extrapolated in the browser, fullscreen,
+add-to-home-screen — is **VADER's** ([sunskiefer/VADER](https://github.com/sunskiefer/VADER), MIT,
+since v0.6.0). No code was taken; see `THIRD_PARTY_NOTICES.md`.
+
 ## Build & test levers
 
 - `vst/build.sh` — armhf `.so` + params + skin (needs Docker).
