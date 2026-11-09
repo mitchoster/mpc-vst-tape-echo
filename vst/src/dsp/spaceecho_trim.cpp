@@ -26,16 +26,16 @@
 #include <cstring>
 
 /* ---- interface switch (2026-10-28, same mechanism as MPC DJ FX 2 3.1.0) ----------------------------
- * All three interfaces ship inside the plugin folder as "Plugin Skins/<name>/" and differ only in the files
+ * Both interfaces ship inside the plugin folder as "Plugin Skins/<name>/" and differ only in the files
  * MPC reads when the plugin is inserted (TUI.json and the Q-Link banks); each interface's artwork lives in
  * its own subfolder. Switching copies those two small JSON files and rewrites no image, so the instance that
  * is running keeps everything it has loaded, and MPC - which binds a skin at insert and has no reload call -
  * shows the new interface on the next insert. Same contract as the DJ FX 2 port; keep them in step.
  */
-static const char *const kSkinDirs[] = { "studio", "classic", "rack" };
-static const char *const kSkinTxt[]  = { "Studio", "Classic", "Rack" };
+static const char *const kSkinDirs[] = { "classic", "rack" };
+static const char *const kSkinTxt[]  = { "Classic", "Rack" };
 #define SKIN_N ((int)(sizeof kSkinDirs / sizeof kSkinDirs[0]))
-#define SKIN_DEFAULT_IDX 2   /* 0 studio, 1 classic, 2 rack: the rack panel is the default */
+#define SKIN_DEFAULT_IDX 0   /* 0 classic, 1 rack: the ivory panel is the default; ui.txt wins when present */
 
 static int skin_clamp_idx(int idx)
 {

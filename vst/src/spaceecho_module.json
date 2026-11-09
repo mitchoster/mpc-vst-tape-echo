@@ -248,12 +248,11 @@
         "name": "INTERFACE",
         "type": "enum",
         "options": [
-          "Studio",
           "Classic",
           "Rack"
         ],
-        "default": "Studio",
-        "description": "Switches the plugin's interface; the three skins ship with the plugin and the new one appears on the next insert."
+        "default": "Classic",
+        "description": "Switches the plugin's interface; both skins ship with the plugin and the new one appears on the next insert."
       }
     ]
   }
